@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>基本的链式调用</title>
+    </head>
+
+    <body>
+        <canvas id="canvas"></canvas>
+        <button onclick="start()">开始</button>
+        <button onclick="stop()">暂停</button>
+        <button onclick="reset()">重播/重置</button>
+        <!-- 获取 animation 动画库 -->
+        <!-- <script src="https://cdn.jsdelivr.net/gh/wujinbao/markdown_files@v8.6/XML/animation/animation.js"></script> -->
+		<script src="animation.js"></script>
+    </body>
+
+    <script>
+        let canvas = document.getElementById("canvas")
+        let context = canvas.getContext("2d")
+        canvas.width = 800 // 画布宽度
+        canvas.height = 400 // 画布高度
+
+        let animation = new Animation() // 创建 animation 动画库
+        let rgba = "rgba(255, 255, 255, 0.3)" // 透明度设置，即拖尾效果程度
+        // 动画目标类型为圆弧
+        let targetListParam = [
+        	{ // 动画目标对象
+            	startX: 100,
+            	startY: 50,
+            	radius: 25,
+            	sAngle: 0,
+            	eAngle: 2 * Math.PI,
+            	counterclockwise: false,
+            	targetType: "arc", // 动画目标类型
+            	fillStyle: "red", // 填充颜色
+        	},
+        	{ // 动画目标对象
+            	startX: 250,
+                startY: 50,
+                width: 50,
+                height: 30,
+                targetType: "rect", // 动画目标类型
+                fillStyle: "blue", // 填充颜色
+        	},
+            // { // 动画目标对象
+            //     startX: 400,
+            //     startY: 50,
+            //     lineToList: [
+            //         [130, 50], [150, 70], [130, 90], [80, 90], [60, 70]
+            //     ],
+            //     targetType: "polygon", // 动画目标类型
+            //     fillStyle: "yellow", // 填充颜色
+            // }
+        ]
+
+        // 动画目标类型为矩形
+        // let targetParam = { // 动画目标对象
+        //     startX: 50,
+        //     startY: 50,
+        //     width: 50,
+        //     height: 30,
+        //     targetType: "rect", // 动画目标类型
+        //     fillStyle: "red", // 填充颜色
+        // }
+
+        // 动画目标类型为图片
+        // let targetParam = { // 动画目标对象
+        //     imageUrl: "https://cdn.jsdelivr.net/gh/wujinbao/markdown_files@v7.3/XML/goldCoin.png",
+        //     startX: 50,
+        //     startY: 50,
+        //     width: 50,
+        //     height: 50,
+        //     targetType: "image", // 动画目标类型
+        // }
+
+        // 动画目标类型为多边形
+        // let targetParam = { // 动画目标对象
+        //     startX: 80,
+        //     startY: 50,
+        //     lineToList: [
+        //     	[130, 50], [150, 70], [130, 90], [80, 90], [60, 70]
+        //     ],
+        //     targetType: "polygon", // 动画目标类型
+        //     fillStyle: "red", // 填充颜色
+        // }
+
+        /**
+         * 运动参数对象
+         * @key  task  任务数组对象
+         * @key  task  moveX、my 分别是动画横向、纵向移动距离（即初始速度）
+         * @key  task  vx、vy 分别是动画横向、纵向加减速度（加速度为正数，减速度为负数），减速度时需注意设置的减速度不能大于初始速度（如 mx 必须大于 vx * fr；my 必须大于 vy * fr）
+         * @key  task  fr 是动画帧数（即运动时间，每帧为 1000/60 ms）
+         * @key  task  loop 是当前动画任务重复次数
+         * @key  task  direction 是方向模式，默认值为 "oneWay" 是单向模式；"twoWay" 是双向模式
+         * @key  task  continuity 是下一任务连接的开始方式。分为起点开始 "start"；自定义起点开始 "custom"；上一任务结束点开始 "previous"。（前两个也就是不连续,最后一个任务可以不用设置）
+         * @key  task  sx、sy 分别是自定义下一任务的起点位置（即 continuity 为 "custom" 时设置才起作用）
+         * @key  task  delay 是一个任务完成后，下个任务开始的延时时间，单位为 ms
+         * @key  loop  是全局的任务重复次数（即该任务没设置重复次数时，则按全局的重复次数）
+         * @key  delay  是全局的延时时间（即该任务没设置延时时间时，则按全局的重复次数）
+         */
+        let motionListParam = [
+        	{
+        		task: [
+                	{mx: 2, my: 6, vx: 0.01, vy: -0.06, fr: 200, loop: 1, direction: "twoWay", delay: 500},
+                	{mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 160, loop: 2, direction: "oneWay", continuity: "custom", sx: 700, sy: 50, delay: 1000},
+                	{mx: -8, my: 0, vx: -0.2, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 1500},
+                	{mx: 0, my: 5, vy: 0.1, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 2000},
+               		{mx: 7, my: -5, fr: 60, loop: 3, direction: "oneWay", continuity: "previous"}
+            	],
+            	loop: 3,
+            	delay: 3000
+        	},
+        	{
+        		task: [
+                	// {mx: 2, my: 6, vx: 0.01, vy: -0.06, fr: 200, loop: 1, delay: 500},
+                	{mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 120, loop: 2, direction: "oneWay", sx: 700, sy: 50, delay: 1000},
+                	// {mx: -8, my: 0, vx: -0.2, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 1500},
+                	// {mx: 0, my: 5, vy: 0.1, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 2000},
+               		// {mx: 7, my: -5, fr: 60, loop: 3, direction: "oneWay", continuity: "previous"}
+            	],
+                fr: 60,
+            	loop: 3,
+            	delay: 3000
+        	},
+            // {
+            //     task: [
+            //         // {mx: 2, my: 6, vx: 0.01, vy: -0.06, fr: 200, loop: 1, delay: 500},
+            //         {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 160, loop: 2, direction: "oneWay", sx: 700, sy: 50, delay: 1000},
+            //         // {mx: -8, my: 0, vx: -0.2, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 1500},
+            //         // {mx: 0, my: 5, vy: 0.1, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 2000},
+            //         // {mx: 7, my: -5, fr: 60, loop: 3, direction: "oneWay", continuity: "previous"}
+            //     ],
+            //     fr: 40,
+            //     loop: 3,
+            //     delay: 3000
+            // }
+        ]
+
+        function runAnimation() {
+            // 链式方式调用
+            animation.clean(rgba).target(targetListParam, motionListParam).start(runAnimation)
+        }
+
+        function start() {
+            runAnimation()  // 动画开始
+        }
+
+        function stop() {
+            animation.stop(requestID) // 动画停止
+        }
+
+        function reset() {
+            animation.reset(requestID, targetListParam, motionListParam) // 动画恢复原位
+            runAnimation()
+        }
+
+        animation.target(targetListParam)
+    </script>
+</html>
