@@ -42,7 +42,7 @@ let wjb = (function() {
     // 第一次启动动画
     function startUp(){
         context.clearRect(0, 0, canvas.width, canvas.height) // 清除画布
-        console.log(1)
+
     	for (let i=0; i<animationTotal.length; i++) {
             animationTotal[i].startUp()
     	}
@@ -51,8 +51,8 @@ let wjb = (function() {
     }
 
     /**
-    * 重新开始暂停的动画
-    * @param  name  动画名称，重新开始多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为重新开始全部的暂停
+    * 开始动画
+    * @param  name  动画名称，开始多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部开始
     */
     function start(name){
         for (let i=0; i<animationTotal.length; i++) {
@@ -64,7 +64,7 @@ let wjb = (function() {
 
     /**
     * 暂停动画
-    * @param  name  动画名称，暂停多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为暂停全部
+    * @param  name  动画名称，暂停多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部暂停
     */
     function stop(name){
         for (let i=0; i<animationTotal.length; i++) {
@@ -76,7 +76,7 @@ let wjb = (function() {
 
     /**
     * 重置动画
-    * @param  name  动画名称，重置多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为重置全部
+    * @param  name  动画名称，重置多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部重置
     */
     function reset(name){
     	context.clearRect(0, 0, canvas.width, canvas.height) // 清除画布

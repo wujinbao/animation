@@ -38,6 +38,16 @@ AnimationItem.prototype = {
     	this.fr = params.fr || this.fr
     	this.loop = params.loop || this.loop
 
+        if (this.animationData.startX === undefined) {
+            this.then(this.name + "动画 startX 未设置")
+        }
+        if (this.animationData.startY === undefined) {
+            this.then(this.name + "动画 startY 未设置")
+        }
+        if (this.animationType === undefined) {
+            this.then(this.name + "动画类型 animationType 未设置或有误")
+        }
+
         // 通过深拷贝保存初始数据
         this.initData = JSON.parse(JSON.stringify(params))
     },
@@ -58,19 +68,17 @@ AnimationItem.prototype = {
 
         // 动画类型处理
         if (this.animationType === "arc") {
-            context.arc(this.animationData.startX, this.animationData.startY, this.animationData.radius, this.animationData.sAngle, this.animationData.eAngle, this.animationData.counterclockwise)
+            context.arc(this.animationData.startX, this.animationData.startY, this.animationData.radius || 25, this.animationData.sAngle || 0, this.animationData.eAngle || 2 * Math.PI, this.animationData.counterclockwise || false)
         } else if (this.animationType === "rect") {
-            context.rect(this.animationData.startX, this.animationData.startY, this.animationData.width, this.animationData.height)
+            context.rect(this.animationData.startX, this.animationData.startY, this.animationData.width || 100, this.animationData.height || 50)
         } else if (this.animationType === "image") {
             let img = new Image() // 创建一个 Image 对象
             img.src = this.animationData.imageUrl // 为 Image 对象指定图片源
             img.onload = function(){ // 等到图片加载进来之后
-                context.drawImage(img, this.animationData.startX, this.animationData.startY, this.animationData.width, this.animationData.height) // 五参数的情况，图片大小由后两个参数控制
+                context.drawImage(img, this.animationData.startX, this.animationData.startY, this.animationData.width || 100, this.animationData.height || 50) // 五参数的情况，图片大小由后两个参数控制
             }
             return this.track()
-        } else {
-            return this._then("画类型未设置")
-        }
+        } else return
 
         context.fillStyle = this.fillStyle
         context.fill()
