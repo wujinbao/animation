@@ -2,7 +2,7 @@
 <html lang="zh">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>基本的链式调用</title>
+        <title>wjb-动画库示例演示</title>
     </head>
 
     <body>
@@ -10,12 +10,11 @@
         <button onclick="start()">开始</button>
         <button onclick="stop()">暂停</button>
         <button onclick="reset()">重播/重置</button>
+        <button onclick="remove()">删除</button>
 
         <!-- 获取 animation 动画库 -->
-        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.0/demo/animationItem.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.0/demo/animationManager.js"></script>
-<!--         <script src="animationItem.js"></script>
-		<script src="animationManager.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationItem.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationManager.js"></script>
     </body>
 
     <script>
@@ -28,6 +27,7 @@
 
         let animationParam = [
         	{ // 动画对象为圆形
+                name: "one",
                 animationData: {
                     startX: 100,
                     startY: 50,
@@ -39,16 +39,16 @@
                 animationType: "arc", // 动画类型
                 fillStyle: "red", // 填充颜色
                 task: [
-                    {mx: 2, my: 6, vx: 0.01, vy: -0.06, fr: 200, loop: 1, direction: "twoWay", delay: 500},
-                    {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 160, loop: 2, direction: "oneWay", continuity: "custom", sx: 700, sy: 50, delay: 1000},
-                    {mx: -8, my: 0, vx: -0.2, fr: 40, loop: 2, direction: "oneWay", continuity: "previous", delay: 1500},
+                    {mx: 2, my: 6, vx: 0.01, vy: -0.06, fr: 200, loop: 1, direction: "twoWay"},
+                    {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 160, loop: 2, direction: "oneWay", continuity: "custom", sx: 700, sy: 50},
+                    {mx: -8, my: 0, vx: -0.2, fr: 40, loop: 2, direction: "oneWay", continuity: "previous"},
                     {mx: 0, my: 5, vy: 0.1, fr: 40, loop: 2, direction: "oneWay", continuity: "previous"},
                     {mx: 7, my: -5, fr: 60, direction: "oneWay", continuity: "previous"}
                 ],
-                loop: 3,
-                delay: 3000
+                loop: 3
         	},
             { // 动画对象为矩形
+                name: "two",
                 animationData: {
                     startX: 250,
                     startY: 50,
@@ -58,11 +58,26 @@
                 animationType: "rect", // 动画类型
                 fillStyle: "blue", // 填充颜色
                 task: [
-                    {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 120, loop: 2, direction: "oneWay", sx: 700, sy: 50, delay: 1000},
+                    {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 120, loop: 2, direction: "oneWay"},
                 ],
                 fr: 60,
                 loop: 3,
-                delay: 3000
+            },
+            { // 动画对象为矩形
+                name: "three",
+                animationData: {
+                    startX: 400,
+                    startY: 50,
+                    width: 50,
+                    height: 30,
+                },
+                animationType: "rect", // 动画类型
+                fillStyle: "yellow", // 填充颜色
+                task: [
+                    {mx: 8, my: 1, vx: -0.1, vy: 0.01, fr: 120, loop: 2},
+                ],
+                fr: 100,
+                loop: 2
             }
         ]
 
@@ -74,11 +89,15 @@
         } 
 
         function stop() {
-            wjb.stop()
-        } 
+            wjb.stop(["one", "two"])
+        }
 
         function reset() {
             wjb.reset()
+        } 
+
+        function remove() {
+            wjb.remove(["one", "three"])
         } 
     </script>
 </html>

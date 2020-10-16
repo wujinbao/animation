@@ -4,56 +4,57 @@ let STATE_INITIAL = 0
 let STATE_START = 1
 // 停止状态
 let STATE_STOP = 2
-// 完成状态
-let STATE_FINISH = 3
 
 let AnimationItem = function() {
-	this.state = STATE_INITIAL
+	this.state = STATE_INITIAL // 开始状态
+    this.name = '' // 动画名称
     this.animationData = {} // 动画数据
-    this.animationType = ''
-    this.fillStyle = ''
-    this.task = []
-    this.fr = 0
-    this.loop = true
-    this.delay = 0
+    this.animationType = '' // 动画类型
+    this.fillStyle = '' // 动画填充颜色
+    this.task = [] // 动画任务数组
+    this.fr = 0 // 动画开始帧数
+    this.loop = 0 // 动画重复次数
 
-    this.currentFr = 0 // 当前帧
-    this.startFr = 0 // 动画的开始帧
+    this.currentFr = 0 // 当前帧数
+    this.startFr = 0 // 动画的开始帧数
     this.currentLoop = 0 // 当前任务次数
     this.taskIndex = 0 // 当前任务序号
+    this.endTaskTotal = false // 全部任务是否已完成
 
-    this.endTaskTotal = false
+    this.isPaused = true
 }
 
 AnimationItem.prototype = {
+    /**
+    * 设置动画数据
+    * @param  params  动画参数
+    */
     setData: function(params) {
-    	// this.initstartX = params.animationData.startX
-    	// this.initstartY = params.animationData.startY
+        this.name = params.name
     	this.animationData = params.animationData
     	this.animationType = params.animationType
     	this.fillStyle = params.fillStyle
     	this.task = params.task
-    	this.fr = params.fr
-    	this.loop = params.loop
-    	this.delay = params.delay
+    	this.fr = params.fr || this.fr
+    	this.loop = params.loop || this.loop
 
         // 通过深拷贝保存初始数据
         this.initData = JSON.parse(JSON.stringify(params))
-
-    	// this.startFrames()
     },
 
     startFrames: function() {    	
         // 判断动画开始帧数
-        if (this.fr === undefined || this.startFr === this.fr) {
+        if (this.startFr === this.fr) {
             this.draw()
         } else {
-        	this.startFr++
+            if (!this.isPaused) {
+                this.startFr++
+            }
         }
     },
 
     draw: function() {
-    	context.beginPath() // 绘制开始
+    	context.beginPath()
 
         // 动画类型处理
         if (this.animationType === "arc") {
@@ -74,7 +75,37 @@ AnimationItem.prototype = {
         context.fillStyle = this.fillStyle
         context.fill()
 
-        this.track()
+        if (!this.endTaskTotal && !this.isPaused) {
+            this.track()
+        }  
+    },
+
+    startUp: function() {
+        if (this.state === STATE_START) {
+            cancelAnimationFrame(requestID)
+        }
+        this.state = STATE_START
+
+        this.startFrames()
+    },
+
+    start: function() {
+        this.isPaused = false
+    },
+
+    stop: function() {
+        this.isPaused = true
+    },
+
+    reset: function() {     
+        // 恢复初始默认值
+        this.recover()
+        this.currentFr = 0
+        this.startFr = 0
+        this.currentLoop = 0
+        this.taskIndex = 0
+        this.isPaused = false
+        this.endTaskTotal = false
     },
 
     track: function() {
@@ -89,32 +120,6 @@ AnimationItem.prototype = {
     	this.animationData.startY += my + vy * fr
 
     	this.range()
-    },
-
-    start: function() {
-    	if (this.state === STATE_START) {
-            cancelAnimationFrame(requestID)
-        }
-        this.state = STATE_START
-
-    	this.startFrames()
-    },
-
-    stop: function() {
-    	if (this.state === STATE_START) {
-            this.state === STATE_STOP
-            cancelAnimationFrame(requestID)
-        }
-    },
-
-    reset: function() {  	
-        // 恢复初始默认值
-        this.recover()
-        this.currentFr = 0
-        this.startFr = 0
-        this.currentLoop = 0
-        this.taskIndex = 0
-        this.endTaskTotal = false
     },
 
     range: function() {
@@ -199,7 +204,7 @@ AnimationItem.prototype = {
         	// 全部任务完成
         	if (this.taskIndex === this.task.length) {
             	this.taskIndex = 0     
-            	this.endTaskTotal = true
+                this.endTaskTotal = true
         	}
     	}
     },
