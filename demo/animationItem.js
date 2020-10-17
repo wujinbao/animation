@@ -21,22 +21,24 @@ let AnimationItem = function() {
     this.taskIndex = 0 // 当前任务序号
     this.endTaskTotal = false // 全部任务是否已完成
 
-    this.isPaused = true
+    this.isLoaded = false
+    this.isPaused = false
+    this.requestID = ''
 }
 
 AnimationItem.prototype = {
     /**
     * 设置动画数据
-    * @param  params  动画参数
+    * @param  animationParam  动画参数
     */
-    setData: function(params) {
-        this.name = params.name
-    	this.animationData = params.animationData
-    	this.animationType = params.animationType
-    	this.fillStyle = params.fillStyle
-    	this.task = params.task
-    	this.fr = params.fr || this.fr
-    	this.loop = params.loop || this.loop
+    setData: function(animationParam) {
+        this.name = animationParam.name
+    	this.animationData = animationParam.animationData
+    	this.animationType = animationParam.animationType
+    	this.fillStyle = animationParam.fillStyle
+    	this.task = animationParam.task
+    	this.fr = animationParam.fr || this.fr
+    	this.loop = animationParam.loop || this.loop
 
         if (this.animationData.startX === undefined) {
             this.then(this.name + "动画 startX 未设置")
@@ -49,7 +51,7 @@ AnimationItem.prototype = {
         }
 
         // 通过深拷贝保存初始数据
-        this.initData = JSON.parse(JSON.stringify(params))
+        this.initData = JSON.parse(JSON.stringify(animationParam))
     },
 
     startFrames: function() {    	
@@ -57,7 +59,7 @@ AnimationItem.prototype = {
         if (this.startFr === this.fr) {
             this.draw()
         } else {
-            if (!this.isPaused) {
+            if (this.isPaused) {
                 this.startFr++
             }
         }
@@ -77,32 +79,33 @@ AnimationItem.prototype = {
             img.onload = function(){ // 等到图片加载进来之后
                 context.drawImage(img, this.animationData.startX, this.animationData.startY, this.animationData.width || 100, this.animationData.height || 50) // 五参数的情况，图片大小由后两个参数控制
             }
-            return this.track()
+            if (!this.endTaskTotal && this.isPaused) {
+                return this.track()
+            } 
         } else return
 
         context.fillStyle = this.fillStyle
         context.fill()
 
-        if (!this.endTaskTotal && !this.isPaused) {
+        if (!this.endTaskTotal && this.isPaused) {
             this.track()
         }  
     },
 
-    startUp: function() {
+    start: function() {
         if (this.state === STATE_START) {
-            cancelAnimationFrame(requestID)
+            cancelAnimationFrame(this.requestID)
         }
         this.state = STATE_START
 
         this.startFrames()
     },
 
-    start: function() {
-        this.isPaused = false
-    },
-
     stop: function() {
-        this.isPaused = true
+        if (this.state === STATE_START) {
+            this.state === STATE_STOP
+            cancelAnimationFrame(this.requestID)
+        }
     },
 
     reset: function() {     
@@ -112,7 +115,7 @@ AnimationItem.prototype = {
         this.startFr = 0
         this.currentLoop = 0
         this.taskIndex = 0
-        this.isPaused = false
+        this.isPaused = true
         this.endTaskTotal = false
     },
 
@@ -189,6 +192,53 @@ AnimationItem.prototype = {
     	}
 
     	this.repeatLoop() // 当前任务完成后的重复处理
+    },
+
+    exceedCanvasRange: function() {
+        let task = this.task[this.taskIndex]
+
+        // 超出画布范围时反弹
+        if (this.animationType == "arc") {
+            if (task.direction === "twoWay") {
+                let rangeStartX = this.animationData.radius
+                let rangeEndX = canvas.width - this.animationData.radius
+                let rangeStartY = this.animationData.radius
+                let rangeEndY = canvas.width - this.animationData.radius
+
+                if (this.animationData.startY > rangeEndY || this.animationData.startY < rangeStartY || this.animationData.startX > rangeEndX || this.animationData.startX < rangeStartX) {
+                    this.direction()
+                }
+            } else if (task.direction === undefined || task.direction === "oneWay") {
+                let rangeStartX = -this.animationData.radius
+                let rangeEndX = canvas.width + this.animationData.radius
+                let rangeStartY = -this.animationData.radius
+                let rangeEndY = canvas.width + this.animationData.radius
+
+                if (this.animationData.startY > rangeEndY || this.animationData.startY < rangeStartY || this.animationData.startX > rangeEndX || this.animationData.startX < rangeStartX) {
+                    this.direction()
+                }
+            }
+        } else if (this.animationType == "rect" || this.animationType == "image") {
+            if (task.direction === undefined || task.direction === "twoWay") {
+                let rangeStartX = this.animationData.width
+                let rangeEndX = canvas.width - this.animationData.width
+                let rangeStartY = this.animationData.height
+                let rangeEndY = canvas.width - this.animationData.height
+
+                if (this.animationData.startY > rangeEndY || this.animationData.startY < rangeStartY || this.animationData.startX > rangeEndX || this.animationData.startX < rangeStartX) {
+                    this.direction()
+                }
+            } else if (task.direction === "oneWay") {
+                let rangeStartX = -this.animationData.width
+                let rangeEndX = canvas.width + this.animationData.width
+                let rangeStartY = -this.animationData.height
+                let rangeEndY = canvas.width + this.animationData.height
+
+                if (this.animationData.startY > rangeEndY || this.animationData.startY < rangeStartY || this.animationData.startX > rangeEndX || this.animationData.startX < rangeStartX) {
+                    this.direction()
+                }
+            }
+        }
     },
 
     repeatLoop: function() {

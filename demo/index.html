@@ -13,8 +13,8 @@
         <button onclick="remove()">删除</button>
 
         <!-- 引用 wjb 动画库 -->
-        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationItem.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationManager.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.2/demo/animationItem.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.2/demo/animationManager.js"></script>
     </body>
 
     <script>
@@ -81,23 +81,28 @@
             }
         ]
 
+        // 可以直接采用链式也可以实现 wjb.add(animationParam).loadAnimation().start(["one", "three"])
+
+        // 添加动画
+        wjb.add(animationParam)
+
         // 加载动画
-        wjb.loadAnimation(animationParam)
+        wjb.loadAnimation()
 
         function start() {
             wjb.start()
         } 
 
         function stop() {
-            wjb.stop(["one", "two"])
+            wjb.stop(["one", "three"])
         }
 
         function reset() {
-            wjb.reset()
+            wjb.reset(["one"])
         } 
 
         function remove() {
-            wjb.remove(["one", "three"])
+            wjb.remove(["two"])
         } 
     </script>
 </html>

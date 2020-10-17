@@ -8,12 +8,14 @@
 
 #### 1. 引用 wjb 动画库
 
-    <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationItem.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.1/demo/animationManager.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.2/demo/animationItem.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/wujinbao/animation@v1.2/demo/animationManager.js"></script>
     
-#### 2. 加载动画 loadAnimation
+#### 2. wjb 动画库的基本方法
 
-参数 params 是所有动画数据，每个动画数据是一个对象，对象属性结构如下：
+- #### 2.1 add 方法
+
+add 方法是添加动画。参数 animationParam  动画的所有数组对象数据，如 [animationObj1, animationObj2, animationObj3]，对象属性结构如下：
 
 - name 动画名称
 - targetType 动画类型，属性值分别有 "arc"、"rect"、"image"
@@ -67,37 +69,43 @@ sx、sy | 分别是下一任务不连续时，自定义动画起点坐标（即 
 
 #### 语法格式
 
-    wjb.loadAnimation(params)
+    wjb.add(animationParam)
     
-#### 3. wjb 动画库的基本方法
+- #### 2.2 loadAnimation 方法
 
-- #### 3.1 start 方法
+loadAnimation 方法是加载动画。参数 name 动画名称，加载多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部加载。
 
-start 方法是动画开始。参数 name 动画名称，开始多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部开始
+#### 语法格式
+
+    wjb.start(name)
+
+- #### 2.3 start 方法
+
+start 方法是动画开始。参数 name 动画名称，开始多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部开始。
 
 #### 语法格式
 
     wjb.start(name)
     
-- #### 3.2 stop 方法
+- #### 2.4 stop 方法
 
-stop 方法是动画暂停。参数 name 动画名称，暂停多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部暂停
+stop 方法是动画暂停。参数 name 动画名称，暂停多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部暂停。
 
 #### 语法格式
 
     wjb.stop(name)
     
-- #### 3.3 reset 方法
+- #### 2.5 reset 方法
 
-reset 方法是动画重置。参数 name 动画名称，重置多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部重置
+reset 方法是动画重置。参数 name 动画名称，重置多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部重置。
 
 #### 语法格式
 
     wjb.reset(name)
     
-- #### 3.4 remove 方法
+- #### 2.6 remove 方法
 
-remove 方法是动画删除。参数 name 动画名称，删除多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部删除
+remove 方法是动画删除。参数 name 动画名称，删除多个时，直接传数组即可。如 [name1, name2], 若没传参数时默认为全部删除。
 
 #### 语法格式
 
@@ -190,8 +198,13 @@ remove 方法是动画删除。参数 name 动画名称，删除多个时，直�
                 }
             ]
 
+            // 可以直接采用链式也可以实现动画的添加与加载 wjb.add(animationParam).loadAnimation().start(["one", "three"])
+
+            // 添加动画
+            wjb.add(animationParam)
+        
             // 加载动画
-            wjb.loadAnimation(animationParam)
+            wjb.loadAnimation()
 
             function start() {
                 wjb.start()
